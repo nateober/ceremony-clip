@@ -26,11 +26,15 @@ grep -n -i 'montgomery' recording.srt   # surname first; first names get mangled
 Otherwise transcribe. **Critical:** Whisper hallucinates filler text ("Thank you.")
 over music/applause, and its own `no_speech_threshold`/`logprob` settings CANNOT
 filter this (music ≠ silence to Whisper; the filler is high-confidence). Pre-filter
-with VAD. On Nate's fleet use `~/bin/transcribe-clean` (Silero VAD → mlx
-whisper-turbo, emits `.srt` in original-media time). Portable equivalent: silero-vad
-speech regions → `mlx_whisper.transcribe()` (Python API, NOT the CLI — the CLI
-degenerates into repetition loops) with `condition_on_previous_text=False`, offsetting
-timestamps by each region's start.
+with VAD — use the bundled script (Silero VAD → mlx whisper-turbo Python API; the
+`mlx_whisper` CLI degenerates into repetition loops, never use it):
+
+```bash
+scripts/transcribe_vad.py recording.mp4 --output-dir work/   # → .txt + .srt
+```
+
+A ~2h ceremony transcribes in ~10–15 min on Apple Silicon. (On Nate's fleet,
+`~/bin/transcribe-clean` is the same pipeline with more output formats.)
 
 **Search tolerantly.** ASR mangles first names (Delilah → "Dalila"). Search the
 surname; if no hit, fuzzy-match (`rapidfuzz`, threshold ~70) over the transcript.
