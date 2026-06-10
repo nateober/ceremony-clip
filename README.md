@@ -12,7 +12,10 @@ name; it finds the moment, cuts it, scores it, mixes it, and *verifies its own w
 
 ## What you get
 
-- The right 35-second window found automatically — no scrubbing through 2+ hours
+- The right ~40-second window found automatically — no scrubbing through 2+ hours
+- **The right kid verified on screen** — at big ceremonies walkers lag the
+  announcer by ~20 seconds, so the graduate crossing during the name call is
+  someone *else*; the skill frame-checks the window and asks you to confirm
 - Fade-in title card (name + school + honors)
 - A unique orchestral cue composed locally by [MusicGen](https://huggingface.co/facebook/musicgen-small),
   ducked under the announcer so the name rings clear, bowing out to the real applause
@@ -53,7 +56,9 @@ is a plain command, and `scripts/` contains the three helpers
 1. **Find the moment** — VAD-gated Whisper transcription (plain Whisper hallucinates
    "Thank you." over ceremony music; speech-only gating fixes it), then a
    surname-first search of the transcript.
-2. **Cut** a 37-second window starting 5 seconds before the name.
+2. **Cut** a ~42-second window starting 5 seconds before the name — long enough
+   to cover the name-to-walk lag — then extract frames and visually confirm the
+   subject is the one crossing (one human confirmation beats any name-math).
 3. **Title card** rendered as a transparent PNG, composited with alpha fades.
 4. **Score** composed locally by MusicGen-small on the GPU.
 5. **Mix** with a deterministic volume envelope: music ducks to 18% under the name,

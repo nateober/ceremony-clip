@@ -40,18 +40,40 @@ A ~2h ceremony transcribes in ~10–15 min on Apple Silicon. (On Nate's fleet,
 surname; if no hit, fuzzy-match (`rapidfuzz`, threshold ~70) over the transcript.
 Names are read in sequence — the right hit sits between other names.
 
-## 2. Cut the window
+## 2. Cut the window — and verify the subject is actually in it
 
-Name call at `T` seconds → start `T-5`, duration ~37s (walk + applause). Re-encode;
+**The name call is NOT when the subject is on stage.** At a big ceremony the
+walkers lag the name reader — measured **~20 seconds** at a 601-graduate
+commencement. The reader is working through a queue: whoever is shaking hands
+when you hear the name was called ~3 names earlier. A clip framed only around
+the name shows the *wrong kid* walking (this exact mistake shipped once — the
+clip starred the subject's friend).
+
+Window: start `T-5`, duration **~42s** — name lands ~5s in, the subject typically
+enters ~T+12..T+20, diploma/photographer pose ~T+20, exit ~T+25..T+30. Then
+**verify before polishing**: extract frames at `T+10`, `T+18`, `T+25`, look at
+them (Read tool), and confirm the subject — glasses, stole color, cords. If two
+graduates match the description (regalia is a uniform; they will), show the user
+one frame and ask. One human confirmation beats any amount of name-math.
+
+```bash
+for off in 10 18 25; do ffmpeg -y -ss $((T+off)) -i recording.mp4 -frames:v 1 /tmp/who_$off.jpg; done
+# Read the jpgs; confirm the subject is the one crossing
+```
+
+Re-encode the cut;
 `-c copy` glitches on non-keyframe cuts. Use `-t <dur>`, NOT `-to`: with `-ss` before
 `-i` (fast input-seek), `-to` is interpreted on the original timeline and miscuts.
 This re-encode also normalizes any source codec (AV1/Opus etc.) to H.264/AAC, which
 is what makes the later `-c:a copy` safe:
 
 ```bash
-ffmpeg -y -ss 1:59:25 -i recording.mp4 -t 37 \
+ffmpeg -y -ss 1:59:25 -i recording.mp4 -t 42 \
   -c:v libx264 -crf 20 -preset fast -c:a aac -movflags +faststart clip.mp4
 ```
+
+With the longer window, let the music bow out (step 5) *before* the subject's
+walk — their crossing plays over the real applause, which is the moment anyway.
 
 ## 3. Title card
 
@@ -141,3 +163,18 @@ If you evicted an Ollama model, restore it:
 | "I'll listen to check the mix" | You can't. Re-transcribe the mixed name window. |
 | sidechaincompress + tune by ear | Same problem. Deterministic envelope keyed to the name offset. |
 | Exact-matching the first name in the transcript | ASR mangles proper nouns. Surname first, then fuzzy. |
+| Assuming the walker during the name call is the subject | Walkers lag the reader 10–25s (queue). Verify with frames at T+10/18/25; ask the user if two kids match. |
+| Trusting face-quality scores to pick "the best shot of X" | Vision scores find *a* good face, not *the right* face — two graduates in identical regalia fooled it. Identity first (anchor frame confirmed by a human), quality second. |
+
+## Beyond the clip (optional extras, all local)
+
+- **Stills + contact sheet:** extract the subject's window at 6–10 fps, score
+  sharpness (Laplacian variance) or face quality (Apple Vision
+  `VNDetectFaceCaptureQualityRequest` + yaw via a small Swift CLI), dedupe per
+  0.5s, `magick montage` with timestamp labels. The diploma-photographer pose
+  (~T+20) is reliably the best face-to-camera moment.
+- **Enhance for print:** Real-ESRGAN 2x/4x then GFPGAN (weight ~0.5 preserves
+  identity) rescues 1080p video faces to small-print quality. Both run on MPS.
+- **Slow-mo finale:** 59.94fps sources give clean 2x slow motion at 30fps
+  (`setpts=2*PTS`) — made for cap tosses. Find the real toss by frame
+  inspection; transcript cues for it can be ~10s early.
