@@ -174,7 +174,8 @@ If you evicted an Ollama model, restore it:
   0.5s, `magick montage` with timestamp labels. The diploma-photographer pose
   (~T+20) is reliably the best face-to-camera moment.
 - **Enhance for print:** Real-ESRGAN 2x/4x then GFPGAN (weight ~0.5 preserves
-  identity) rescues 1080p video faces to small-print quality. Both run on MPS.
+  identity) rescues 1080p video faces to small-print quality. Both run on MPS —
+  packaged as a sibling skill: [image-kit](https://github.com/nateober/image-kit).
 - **Slow-mo finale:** 59.94fps sources give clean 2x slow motion at 30fps
   (`setpts=2*PTS`) — made for cap tosses. Find the real toss by frame
   inspection; transcript cues for it can be ~10s early.
