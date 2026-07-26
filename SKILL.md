@@ -10,6 +10,11 @@ name call, the walk, a title card, an original orchestral cue ducked under the
 announcer. Every step is a command; every step is machine-verifiable. Helper scripts
 live in `scripts/` next to this file.
 
+For general editing — multi-take selection, EDL-driven cuts, color grading,
+animated overlays — use the **video-edit** skill instead; this one is the
+specialized "one moment + music" pipeline. video-edit's word-level transcripts
+and `find_gap.py` also upgrade step 2 here (cut in a silence gap, not at T−5).
+
 ## Pipeline
 
 1. **Find the moment** (transcript search) → 2. **Cut** → 3. **Title card** →
