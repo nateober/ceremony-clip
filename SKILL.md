@@ -38,8 +38,9 @@ with VAD — use the bundled script (Silero VAD → mlx whisper-turbo Python API
 scripts/transcribe_vad.py recording.mp4 --output-dir work/   # → .txt + .srt
 ```
 
-A ~2h ceremony transcribes in ~10–15 min on Apple Silicon. (On Nate's fleet,
-`~/bin/transcribe-clean` is the same pipeline with more output formats.)
+A ~2h ceremony transcribes in ~10–15 min on Apple Silicon. (`~/bin/transcribe-clean`
+is the same pipeline with more output formats — **Ada only**; it does not exist
+on Max, where the bundled script above is the path.)
 
 **Search tolerantly.** ASR mangles first names (Delilah → "Dalila"). Search the
 surname; if no hit, fuzzy-match (`rapidfuzz`, threshold ~70) over the transcript.
@@ -146,7 +147,11 @@ name is heard over video, not over text.
 ```bash
 # Name audible through the mix? Re-transcribe the name window of the FINAL file:
 ffmpeg -y -ss <N-1.3> -i final.mp4 -t 4 -vn /tmp/check.wav
+# Ada only (~/bin/transcribe-clean is a local wrapper, NOT on Max):
 ~/bin/transcribe-clean /tmp/check.wav --output-dir /tmp/check-out && cat /tmp/check-out/check.txt
+# Max / any host: the bundled VAD script, or plain mlx_whisper via brew python3.12
+scripts/transcribe_vad.py /tmp/check.wav --output-dir /tmp/check-out && cat /tmp/check-out/check.txt
+/opt/homebrew/opt/python@3.12/bin/python3.12 -c 'import sys, mlx_whisper; print(mlx_whisper.transcribe(sys.argv[1], path_or_hf_repo="mlx-community/whisper-turbo", language="en")["text"])' /tmp/check.wav
 # → must contain the name (ASR spelling variants OK)
 
 # Title card rendered? Extract a frame mid-title and view it:
