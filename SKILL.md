@@ -1,6 +1,6 @@
 ---
 name: ceremony-clip
-description: Use when making a short cinematic highlight clip from a long ceremony or event recording (graduation, recital, awards, wedding) — locating the moment a name is called, adding a title card and locally-generated music, all from the command line with no video editor.
+description: "Use when pulling a segment out of any long recording or livestream (graduation, recital, awards, wedding, church or school stream, game, meeting): find the moment by transcript (a name called, a speaker, a song), cut it cleanly, and optionally turn it into a short cinematic highlight with a title card and locally generated music, all from the command line. General multi-clip editing is video-edit."
 ---
 
 # Ceremony Highlight Clip
@@ -19,6 +19,17 @@ and `find_gap.py` also upgrade step 2 here (cut in a silence gap, not at T−5).
 
 1. **Find the moment** (transcript search) → 2. **Cut** → 3. **Title card** →
 4. **Generate music** → 5. **Mix with ducking** → 6. **Verify**
+
+## 0. Getting a livestream or online recording
+
+```bash
+yt-dlp -F '<url>'                                   # list formats; pick one ≤1080p
+yt-dlp -f 'bv*[height<=1080]+ba/b' -o 'work/src.%(ext)s' '<url>'
+yt-dlp --download-sections '*1:42:00-1:50:00' -o 'work/part.%(ext)s' '<url>'   # just a window, when you know roughly where
+```
+A still-live stream records only from now; wait for the VOD. For "just pull
+the segment" requests, stop after step 2 (find + cut, re-encoded so the cut is
+frame-accurate) — the title card and music are optional.
 
 ## 1. Find the moment
 
